@@ -4,7 +4,8 @@ function addRoute() {
         for i in `cat kkskip`
             do
                 j=$((j+1))
-                    sudo ip ro add $i via $gw 1>/dev/null 2>/dev/null
+		    sudo /sbin/route add $i $gw 1>/dev/null 2>/dev/null
+                    #sudo ip ro add $i via $gw 1>/dev/null 2>/dev/null
                     m=$(expr $j % 100)
                     if [ $m -eq 99 ]
                         then
@@ -13,19 +14,21 @@ function addRoute() {
                             done
 }
 
-function kkday() {
-    rm -f kkday_table
+#function kkday() {
+#    rm -f kkday_table
 
-        for i in `cat kkday_host`
-            do
-                host $i|grep -v IPv6|grep address | awk '{print $4}' >> kkday_table
-                    done
-                    sudo pfctl -t kkday -T replace -f ./kkday_table
-                    echo "pass out quick on utun3 from utun3 to <kkday>" > pf.conf
-}
-gw=`netstat -nr|grep default|grep en0 |awk '{print $2}'`
-outif=`netstat -nr|grep default|grep en0 |awk '{print $4}'`
+#        for i in `cat kkday_host`
+#            do
+#                host $i|grep -v IPv6|grep address | awk '{print $4}' >> kkday_table
+#                    done
+#                    sudo pfctl -t kkday -T replace -f ./kkday_table
+#                    echo "pass out quick on utun3 from utun3 to <kkday>" > pf.conf
+#}
 
+outif=`netstat -nr|grep default|awk '{print $4}'|grep -v tun|head -n 1`	#first output interface exclude tun
+gw=`netstat -nr|grep default|grep $outif |awk '{print $2}'`
+
+echo "Interface $outif, gateway $gw"
 
 #sudo pfctl -t kkskip -T replace -f ./kkskip
 
